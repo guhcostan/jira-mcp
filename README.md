@@ -34,7 +34,7 @@ Create a `.env` file in the project root:
 
 ```env
 JIRA_URL=https://your-jira-instance.com
-JIRA_API_TOKEN=your-jira-access-token
+JIRA_ACCESS_TOKEN=your-jira-access-token
 ```
 
 **Note**: This server uses Jira **Access Token** with Bearer authentication (Jira Data Center/Server). For Jira Cloud, you may need to use Basic Auth.
@@ -52,7 +52,7 @@ JIRA_API_TOKEN=your-jira-access-token
       "args": ["-y", "@guhcostan/jira-mcp"],
       "env": {
         "JIRA_URL": "https://your-jira-instance.com",
-        "JIRA_API_TOKEN": "your-jira-access-token"
+        "JIRA_ACCESS_TOKEN": "your-jira-access-token"
       }
     }
   }
@@ -69,7 +69,7 @@ JIRA_API_TOKEN=your-jira-access-token
       "args": ["/path/to/your/jira-mcp/build/index.js"],
       "env": {
         "JIRA_URL": "https://your-jira-instance.com",
-        "JIRA_API_TOKEN": "your-jira-access-token"
+        "JIRA_ACCESS_TOKEN": "your-jira-access-token"
       }
     }
   }
@@ -236,7 +236,7 @@ If you use Jira Cloud, you may need to modify the authentication to Basic Auth i
    - Name: Give it a meaningful name (e.g., "MCP Server")
    - Expiration: Choose an expiration date or "Never expire" (if available)
 7. **Copy the token** immediately (you won't be able to see it again!)
-8. **Add the token** to your `.env` file as `JIRA_API_TOKEN`
+8. **Add the token** to your `.env` file as `JIRA_ACCESS_TOKEN`
 
 **Important Notes:**
 - Store the token securely

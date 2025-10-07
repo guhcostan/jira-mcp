@@ -14,17 +14,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const JIRA_URL = process.env.JIRA_URL;
-const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN;
+const JIRA_ACCESS_TOKEN = process.env.JIRA_ACCESS_TOKEN;
 
-if (!JIRA_URL || !JIRA_API_TOKEN) {
+if (!JIRA_URL || !JIRA_ACCESS_TOKEN) {
   console.error('Error: Missing required environment variables');
-  console.error('Please set: JIRA_URL, JIRA_API_TOKEN');
-  console.error('JIRA_API_TOKEN should be your Jira Access Token');
+  console.error('Please set: JIRA_URL, JIRA_ACCESS_TOKEN');
+  console.error('JIRA_ACCESS_TOKEN should be your Jira Personal Access Token');
   process.exit(1);
 }
 
 // Create authorization header (Bearer authentication with Jira Access Token)
-const authHeader = `Bearer ${JIRA_API_TOKEN}`;
+const authHeader = `Bearer ${JIRA_ACCESS_TOKEN}`;
 
 interface JiraApiResponse {
   [key: string]: any;
