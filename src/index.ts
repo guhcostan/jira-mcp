@@ -71,8 +71,21 @@ async function callJiraApi(
     }
 
     const contentType = response.headers.get('content-type');
+    
+    // Try to parse as JSON if there's content or if content-type suggests JSON
     if (contentType && contentType.includes('application/json')) {
       return await response.json();
+    }
+    
+    // For responses without explicit JSON content-type, try to parse anyway if there's a body
+    const text = await response.text();
+    if (text && text.trim().length > 0) {
+      try {
+        return JSON.parse(text);
+      } catch {
+        // If not JSON, return the text
+        return { success: true, data: text };
+      }
     }
     
     return { success: true };
