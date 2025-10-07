@@ -224,10 +224,25 @@ If you use Jira Cloud, you may need to modify the authentication to Basic Auth i
 
 ### How to get a Jira Access Token
 
-1. Go to your Jira instance user settings
-2. Navigate to Personal Access Tokens
-3. Generate a new access token
-4. Use the token in the `.env` file
+**Step-by-step guide:**
+
+1. **Open your Jira instance** (e.g., `https://your-jira-instance.com`)
+2. **Click on your profile picture** (top-right corner)
+3. **Select "Profile"** from the dropdown menu
+4. **Navigate to "Personal Access Tokens"** tab
+   - Or go directly to: `https://your-jira-instance.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens`
+5. **Click "Create token"**
+6. **Fill in the token details:**
+   - Name: Give it a meaningful name (e.g., "MCP Server")
+   - Expiration: Choose an expiration date or "Never expire" (if available)
+7. **Copy the token** immediately (you won't be able to see it again!)
+8. **Add the token** to your `.env` file as `JIRA_API_TOKEN`
+
+**Important Notes:**
+- Store the token securely
+- Don't commit the token to version control
+- If you lose the token, you'll need to generate a new one
+- The token inherits your user permissions
 
 ## 🛠️ Development
 
