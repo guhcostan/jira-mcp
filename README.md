@@ -1,10 +1,10 @@
 # Jira MCP Server v2.0.0
 
-Um servidor MCP (Model Context Protocol) completo para integração com Jira, permitindo que assistentes de IA interajam com sua instância do Jira.
+A complete MCP (Model Context Protocol) server for Jira integration, allowing AI assistants to interact with your Jira instance.
 
-## 🚀 Instalação
+## 🚀 Installation
 
-### Via npx (Recomendado)
+### Via npx (Recommended)
 
 ```bash
 npx @guhcostan/jira-mcp
@@ -17,7 +17,7 @@ npm install -g @guhcostan/jira-mcp
 jira-mcp
 ```
 
-### Desenvolvimento local
+### Local Development
 
 ```bash
 git clone https://github.com/guhcostan/jira-mcp.git
@@ -26,20 +26,20 @@ npm install
 npm run build
 ```
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### 1. Configure as variáveis de ambiente
+### 1. Set up environment variables
 
-Crie um arquivo `.env` na raiz do projeto:
+Create a `.env` file in the project root:
 
 ```env
 JIRA_URL=https://your-jira-instance.com
 JIRA_API_TOKEN=your-bearer-token-here
 ```
 
-**Nota**: Este servidor usa **Bearer Token** (Jira Data Center/Server). Para Jira Cloud, você pode precisar usar Basic Auth.
+**Note**: This server uses **Bearer Token** (Jira Data Center/Server). For Jira Cloud, you may need to use Basic Auth.
 
-### 2. Configure no Claude Desktop ou Cursor
+### 2. Configure in Claude Desktop or Cursor
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -59,7 +59,7 @@ JIRA_API_TOKEN=your-bearer-token-here
 }
 ```
 
-**Para desenvolvimento local**, use:
+**For local development**, use:
 
 ```json
 {
@@ -76,143 +76,143 @@ JIRA_API_TOKEN=your-bearer-token-here
 }
 ```
 
-### 3. Reinicie o Claude Desktop / Cursor
+### 3. Restart Claude Desktop / Cursor
 
-Feche e reabra completamente o aplicativo para carregar o servidor MCP.
+Close and reopen the application completely to load the MCP server.
 
-## 📚 Recursos
+## 📚 Features
 
-Este servidor MCP fornece **32 ferramentas** para interagir com o Jira:
+This MCP server provides **32 tools** to interact with Jira:
 
-### 📖 Operações de Leitura (17 tools)
-
-#### Issues
-- `jira_get_issue` - Obter detalhes de uma issue
-- `jira_search` - Buscar issues com JQL
-- `jira_get_project_issues` - Issues de um projeto
-- `jira_batch_get_changelogs` - Changelogs em batch
-- `jira_download_attachments` - Info de anexos
-
-#### Projetos
-- `jira_get_all_projects` - Listar todos os projetos
-- `jira_get_project` - Detalhes de um projeto
-- `jira_get_project_versions` - Versões do projeto
-
-#### Outros
-- `jira_get_worklog` - Worklogs de uma issue
-- `jira_get_transitions` - Transições disponíveis
-- `jira_search_fields` - Buscar campos do Jira
-- `jira_get_agile_boards` - Listar boards ágeis
-- `jira_get_board_issues` - Issues de um board
-- `jira_get_sprints_from_board` - Sprints de um board
-- `jira_get_sprint_issues` - Issues de um sprint
-- `jira_get_issue_link_types` - Tipos de links
-- `jira_get_user_profile` - Informações de usuário
-
-### ✏️ Operações de Escrita (15 tools)
+### 📖 Read Operations (17 tools)
 
 #### Issues
-- `jira_create_issue` - Criar issue
-- `jira_batch_create_issues` - Criar múltiplas issues
-- `jira_update_issue` - Atualizar issue
-- `jira_delete_issue` - Deletar issue
-- `jira_assign_issue` - Atribuir issue
+- `jira_get_issue` - Get issue details
+- `jira_search` - Search issues with JQL
+- `jira_get_project_issues` - Get project issues
+- `jira_batch_get_changelogs` - Batch get changelogs
+- `jira_download_attachments` - Get attachment info
 
-#### Outros
-- `jira_add_comment` - Adicionar comentário
-- `jira_transition_issue` - Mudar status
-- `jira_add_worklog` - Adicionar worklog
-- `jira_link_to_epic` - Vincular a épico
-- `jira_create_sprint` - Criar sprint
-- `jira_update_sprint` - Atualizar sprint
-- `jira_create_issue_link` - Criar link entre issues
-- `jira_remove_issue_link` - Remover link
-- `jira_create_version` - Criar versão
-- `jira_batch_create_versions` - Criar múltiplas versões
+#### Projects
+- `jira_get_all_projects` - List all projects
+- `jira_get_project` - Get project details
+- `jira_get_project_versions` - Get project versions
 
-## 💡 Exemplos de Uso
+#### Other
+- `jira_get_worklog` - Get issue worklogs
+- `jira_get_transitions` - Get available transitions
+- `jira_search_fields` - Search Jira fields
+- `jira_get_agile_boards` - List agile boards
+- `jira_get_board_issues` - Get board issues
+- `jira_get_sprints_from_board` - Get board sprints
+- `jira_get_sprint_issues` - Get sprint issues
+- `jira_get_issue_link_types` - Get link types
+- `jira_get_user_profile` - Get user information
 
-### Buscar Issues
+### ✏️ Write Operations (15 tools)
+
+#### Issues
+- `jira_create_issue` - Create issue
+- `jira_batch_create_issues` - Create multiple issues
+- `jira_update_issue` - Update issue
+- `jira_delete_issue` - Delete issue
+- `jira_assign_issue` - Assign issue
+
+#### Other
+- `jira_add_comment` - Add comment
+- `jira_transition_issue` - Change status
+- `jira_add_worklog` - Add worklog
+- `jira_link_to_epic` - Link to epic
+- `jira_create_sprint` - Create sprint
+- `jira_update_sprint` - Update sprint
+- `jira_create_issue_link` - Create issue link
+- `jira_remove_issue_link` - Remove link
+- `jira_create_version` - Create version
+- `jira_batch_create_versions` - Create multiple versions
+
+## 💡 Usage Examples
+
+### Search Issues
 
 ```javascript
-// No Claude/Cursor, basta perguntar:
-"Busque as últimas 10 issues abertas do projeto ABC"
-"Quais são os bugs críticos do sprint atual?"
+// In Claude/Cursor, just ask:
+"Find the last 10 open issues in project ABC"
+"What are the critical bugs in the current sprint?"
 ```
 
-### Criar Issue
+### Create Issue
 
 ```javascript
-"Crie uma issue do tipo Task no projeto XYZ com título 'Implementar autenticação'"
+"Create a Task issue in project XYZ with title 'Implement authentication'"
 ```
 
-### Gerenciar Sprint
+### Manage Sprint
 
 ```javascript
-"Liste todos os sprints ativos do board 123"
-"Mova a issue ABC-456 para o sprint 789"
+"List all active sprints from board 123"
+"Move issue ABC-456 to sprint 789"
 ```
 
-### JQL Avançado
+### Advanced JQL
 
 ```javascript
-"Busque issues com JQL: project = DEV AND status = 'In Progress' AND assignee = currentUser()"
+"Search issues with JQL: project = DEV AND status = 'In Progress' AND assignee = currentUser()"
 ```
 
-## 🔍 Referência de Ferramentas
+## 🔍 Tool Reference
 
 ### jira_get_issue
-Obter detalhes de uma issue específica.
+Get details of a specific issue.
 
-**Parâmetros:**
-- `issueKey` (required): A chave da issue (ex: PROJ-123)
-- `fields` (optional): Campos a retornar (ex: "summary,status,assignee")
-- `expand` (optional): Expandir campos (ex: "changelog,renderedFields")
+**Parameters:**
+- `issueKey` (required): Issue key (e.g., PROJ-123)
+- `fields` (optional): Fields to return (e.g., "summary,status,assignee")
+- `expand` (optional): Expand fields (e.g., "changelog,renderedFields")
 
 ### jira_search
-Buscar issues usando JQL.
+Search issues using JQL.
 
-**Parâmetros:**
-- `jql` (required): Query JQL (ex: "project = PROJ AND status = Open")
-- `maxResults` (optional): Número máximo de resultados (default: 50)
-- `startAt` (optional): Índice inicial para paginação (default: 0)
-- `fields` (optional): Campos a retornar
+**Parameters:**
+- `jql` (required): JQL query (e.g., "project = PROJ AND status = Open")
+- `maxResults` (optional): Maximum number of results (default: 50)
+- `startAt` (optional): Starting index for pagination (default: 0)
+- `fields` (optional): Fields to return
 
 ### jira_create_issue
-Criar uma nova issue.
+Create a new issue.
 
-**Parâmetros:**
-- `project` (required): Chave do projeto
-- `summary` (required): Título da issue
-- `issueType` (required): Tipo (Task, Bug, Story, etc)
-- `description` (optional): Descrição
-- `priority` (optional): Prioridade (High, Medium, Low)
-- `assignee` (optional): Account ID do responsável
-- `labels` (optional): Array de labels
-- `parentKey` (optional): Chave da issue pai (para subtasks)
+**Parameters:**
+- `project` (required): Project key
+- `summary` (required): Issue title
+- `issueType` (required): Type (Task, Bug, Story, etc)
+- `description` (optional): Description
+- `priority` (optional): Priority (High, Medium, Low)
+- `assignee` (optional): Assignee account ID
+- `labels` (optional): Array of labels
+- `parentKey` (optional): Parent issue key (for subtasks)
 
 ### jira_transition_issue
-Transicionar uma issue para outro status.
+Transition an issue to another status.
 
-**Parâmetros:**
-- `issueKey` (required): Chave da issue
-- `transition` (required): Nome ou ID da transição
+**Parameters:**
+- `issueKey` (required): Issue key
+- `transition` (required): Transition name or ID
 
 ### jira_create_sprint
-Criar um novo sprint.
+Create a new sprint.
 
-**Parâmetros:**
-- `boardId` (required): ID do board
-- `name` (required): Nome do sprint
-- `startDate` (optional): Data de início (ISO 8601)
-- `endDate` (optional): Data de fim (ISO 8601)
-- `goal` (optional): Objetivo do sprint
+**Parameters:**
+- `boardId` (required): Board ID
+- `name` (required): Sprint name
+- `startDate` (optional): Start date (ISO 8601)
+- `endDate` (optional): End date (ISO 8601)
+- `goal` (optional): Sprint goal
 
-## 🔐 Autenticação
+## 🔐 Authentication
 
 ### Jira Data Center/Server (Bearer Token)
 
-Este servidor usa Bearer Token por padrão, ideal para instâncias Jira Data Center/Server:
+This server uses Bearer Token by default, ideal for Jira Data Center/Server instances:
 
 ```
 Authorization: Bearer YOUR_TOKEN
@@ -220,81 +220,81 @@ Authorization: Bearer YOUR_TOKEN
 
 ### Jira Cloud (Basic Auth)
 
-Se você usa Jira Cloud, pode precisar modificar a autenticação para Basic Auth no código.
+If you use Jira Cloud, you may need to modify the authentication to Basic Auth in the code.
 
-### Como obter um API Token
+### How to get an API Token
 
-1. Acesse as configurações de segurança da sua conta Jira
-2. Gere um novo API token
-3. Use o token no arquivo `.env`
+1. Go to your Jira account security settings
+2. Generate a new API token
+3. Use the token in the `.env` file
 
-## 🛠️ Desenvolvimento
+## 🛠️ Development
 
-### Estrutura do Projeto
+### Project Structure
 
 ```
 jira-mcp/
 ├── src/
-│   └── index.ts          # Servidor MCP principal
-├── build/                # Arquivos compilados
+│   └── index.ts          # Main MCP server
+├── build/                # Compiled files
 ├── package.json
 ├── tsconfig.json
-├── .env                  # Credenciais (não fazer commit!)
+├── .env                  # Credentials (don't commit!)
 ├── .gitignore
 └── README.md
 ```
 
-### Scripts Disponíveis
+### Available Scripts
 
 ```bash
-npm run build          # Compilar TypeScript
-npm run watch          # Compilar em modo watch
-npm run prepare        # Executado automaticamente no npm install
+npm run build          # Compile TypeScript
+npm run watch          # Compile in watch mode
+npm run prepare        # Runs automatically on npm install
 ```
 
-### Testar Localmente
+### Test Locally
 
 ```bash
-# Compilar
+# Compile
 npm run build
 
-# Executar diretamente
+# Run directly
 node build/index.js
 ```
 
-## 📝 Notas Importantes
+## 📝 Important Notes
 
-- ✅ Suporta Jira Data Center/Server com Bearer Token
-- ✅ 32 ferramentas completas (17 leitura + 15 escrita)
-- ✅ Suporte a JQL para buscas avançadas
-- ✅ Operações em batch para melhor performance
-- ⚠️ Requer permissões adequadas no Jira para cada operação
-- ⚠️ Rate limiting é aplicado pelo Jira
+- ✅ Supports Jira Data Center/Server with Bearer Token
+- ✅ 32 complete tools (17 read + 15 write)
+- ✅ JQL support for advanced searches
+- ✅ Batch operations for better performance
+- ⚠️ Requires appropriate Jira permissions for each operation
+- ⚠️ Rate limiting is applied by Jira
 
-## 🐛 Solução de Problemas
+## 🐛 Troubleshooting
 
-### Erro 401 - Unauthorized
+### Error 401 - Unauthorized
 
-- Verifique se o token está correto
-- Confirme se está usando Bearer Token (não Basic Auth)
-- Verifique se o token não expirou
+- Check if the token is correct
+- Confirm you're using Bearer Token (not Basic Auth)
+- Verify the token hasn't expired
 
-### O servidor não aparece no Claude/Cursor
+### Server doesn't appear in Claude/Cursor
 
-1. Verifique se o caminho no config está correto
-2. Reinicie completamente o aplicativo
-3. Verifique os logs do Claude/Cursor
+1. Check if the path in config is correct
+2. Restart the application completely
+3. Check Claude/Cursor logs
 
-### Erros de permissão
+### Permission errors
 
-- Confirme que sua conta tem permissões para a operação
-- Verifique as permissões do projeto
+- Confirm your account has permissions for the operation
+- Check project permissions
 
-## 📄 Licença
+## 📄 License
 
 MIT
 
-## 👤 Autor
+## 👤 Author
 
 Gustavo Neves
 
@@ -304,12 +304,12 @@ Gustavo Neves
 - npm: https://www.npmjs.com/package/@guhcostan/jira-mcp
 - Issues: https://github.com/guhcostan/jira-mcp/issues
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+Contributions are welcome! Feel free to open issues or pull requests.
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
