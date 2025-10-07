@@ -34,10 +34,10 @@ Create a `.env` file in the project root:
 
 ```env
 JIRA_URL=https://your-jira-instance.com
-JIRA_API_TOKEN=your-bearer-token-here
+JIRA_API_TOKEN=your-jira-access-token
 ```
 
-**Note**: This server uses **Bearer Token** (Jira Data Center/Server). For Jira Cloud, you may need to use Basic Auth.
+**Note**: This server uses Jira **Access Token** with Bearer authentication (Jira Data Center/Server). For Jira Cloud, you may need to use Basic Auth.
 
 ### 2. Configure in Claude Desktop or Cursor
 
@@ -52,7 +52,7 @@ JIRA_API_TOKEN=your-bearer-token-here
       "args": ["-y", "@guhcostan/jira-mcp"],
       "env": {
         "JIRA_URL": "https://your-jira-instance.com",
-        "JIRA_API_TOKEN": "your-bearer-token-here"
+        "JIRA_API_TOKEN": "your-jira-access-token"
       }
     }
   }
@@ -69,7 +69,7 @@ JIRA_API_TOKEN=your-bearer-token-here
       "args": ["/path/to/your/jira-mcp/build/index.js"],
       "env": {
         "JIRA_URL": "https://your-jira-instance.com",
-        "JIRA_API_TOKEN": "your-bearer-token-here"
+        "JIRA_API_TOKEN": "your-jira-access-token"
       }
     }
   }
@@ -210,23 +210,24 @@ Create a new sprint.
 
 ## 🔐 Authentication
 
-### Jira Data Center/Server (Bearer Token)
+### Jira Data Center/Server (Access Token)
 
-This server uses Bearer Token by default, ideal for Jira Data Center/Server instances:
+This server uses Jira Access Token with Bearer authentication by default, ideal for Jira Data Center/Server instances:
 
 ```
-Authorization: Bearer YOUR_TOKEN
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
 ### Jira Cloud (Basic Auth)
 
 If you use Jira Cloud, you may need to modify the authentication to Basic Auth in the code.
 
-### How to get an API Token
+### How to get a Jira Access Token
 
-1. Go to your Jira account security settings
-2. Generate a new API token
-3. Use the token in the `.env` file
+1. Go to your Jira instance user settings
+2. Navigate to Personal Access Tokens
+3. Generate a new access token
+4. Use the token in the `.env` file
 
 ## 🛠️ Development
 
@@ -264,7 +265,7 @@ node build/index.js
 
 ## 📝 Important Notes
 
-- ✅ Supports Jira Data Center/Server with Bearer Token
+- ✅ Supports Jira Data Center/Server with Access Token
 - ✅ 32 complete tools (17 read + 15 write)
 - ✅ JQL support for advanced searches
 - ✅ Batch operations for better performance
@@ -275,9 +276,10 @@ node build/index.js
 
 ### Error 401 - Unauthorized
 
-- Check if the token is correct
-- Confirm you're using Bearer Token (not Basic Auth)
+- Check if the access token is correct
+- Confirm you're using Bearer authentication with access token (not Basic Auth)
 - Verify the token hasn't expired
+- Ensure the token has the necessary permissions
 
 ### Server doesn't appear in Claude/Cursor
 
