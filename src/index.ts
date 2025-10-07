@@ -887,7 +887,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           fields?: string; 
           expand?: string;
         };
-        let endpoint = `/rest/api/3/issue/${issueKey}`;
+        let endpoint = `/rest/api/2/issue/${issueKey}`;
         const params = new URLSearchParams();
         if (fields) params.append('fields', fields);
         if (expand) params.append('expand', expand);
@@ -913,7 +913,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         });
         if (fields) params.append('fields', fields);
         
-        const results = await callJiraApi(`/rest/api/3/search?${params.toString()}`);
+        const results = await callJiraApi(`/rest/api/2/search?${params.toString()}`);
         return {
           content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
         };
@@ -921,7 +921,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_all_projects': {
         const { expand } = args as { expand?: string };
-        let endpoint = '/rest/api/3/project';
+        let endpoint = '/rest/api/2/project';
         if (expand) endpoint += `?expand=${expand}`;
         
         const projects = await callJiraApi(endpoint);
@@ -932,7 +932,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_project': {
         const { projectKey, expand } = args as { projectKey: string; expand?: string };
-        let endpoint = `/rest/api/3/project/${projectKey}`;
+        let endpoint = `/rest/api/2/project/${projectKey}`;
         if (expand) endpoint += `?expand=${expand}`;
         
         const project = await callJiraApi(endpoint);
@@ -954,7 +954,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           startAt: startAt.toString(),
         });
         
-        const results = await callJiraApi(`/rest/api/3/search?${params.toString()}`);
+        const results = await callJiraApi(`/rest/api/2/search?${params.toString()}`);
         return {
           content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
         };
@@ -962,7 +962,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_worklog': {
         const { issueKey } = args as { issueKey: string };
-        const worklogs = await callJiraApi(`/rest/api/3/issue/${issueKey}/worklog`);
+        const worklogs = await callJiraApi(`/rest/api/2/issue/${issueKey}/worklog`);
         return {
           content: [{ type: 'text', text: JSON.stringify(worklogs, null, 2) }],
         };
@@ -970,7 +970,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_transitions': {
         const { issueKey } = args as { issueKey: string };
-        const transitions = await callJiraApi(`/rest/api/3/issue/${issueKey}/transitions`);
+        const transitions = await callJiraApi(`/rest/api/2/issue/${issueKey}/transitions`);
         return {
           content: [{ type: 'text', text: JSON.stringify(transitions, null, 2) }],
         };
@@ -978,7 +978,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_search_fields': {
         const { query } = args as { query?: string };
-        let endpoint = '/rest/api/3/field';
+        let endpoint = '/rest/api/2/field';
         if (query) endpoint += `/search?query=${encodeURIComponent(query)}`;
         
         const fields = await callJiraApi(endpoint);
@@ -1053,7 +1053,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'jira_get_issue_link_types': {
-        const linkTypes = await callJiraApi('/rest/api/3/issueLinkType');
+        const linkTypes = await callJiraApi('/rest/api/2/issueLinkType');
         return {
           content: [{ type: 'text', text: JSON.stringify(linkTypes, null, 2) }],
         };
@@ -1064,7 +1064,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const changelogs = await Promise.all(
           issueKeys.map(async (key) => {
             try {
-              const issue = await callJiraApi(`/rest/api/3/issue/${key}?expand=changelog`);
+              const issue = await callJiraApi(`/rest/api/2/issue/${key}?expand=changelog`);
               return { issueKey: key, changelog: issue.changelog };
             } catch (error) {
               return { issueKey: key, error: (error as Error).message };
@@ -1078,12 +1078,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_user_profile': {
         const { accountId, email } = args as { accountId?: string; email?: string };
-        let endpoint = '/rest/api/3/user';
+        let endpoint = '/rest/api/2/user';
         
         if (accountId) {
           endpoint += `?accountId=${encodeURIComponent(accountId)}`;
         } else if (email) {
-          endpoint = `/rest/api/3/user/search?query=${encodeURIComponent(email)}`;
+          endpoint = `/rest/api/2/user/search?query=${encodeURIComponent(email)}`;
         } else {
           throw new Error('Either accountId or email must be provided');
         }
@@ -1096,7 +1096,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_download_attachments': {
         const { issueKey } = args as { issueKey: string };
-        const issue = await callJiraApi(`/rest/api/3/issue/${issueKey}?fields=attachment`);
+        const issue = await callJiraApi(`/rest/api/2/issue/${issueKey}?fields=attachment`);
         return {
           content: [{
             type: 'text',
@@ -1110,7 +1110,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_get_project_versions': {
         const { projectKey } = args as { projectKey: string };
-        const versions = await callJiraApi(`/rest/api/3/project/${projectKey}/versions`);
+        const versions = await callJiraApi(`/rest/api/2/project/${projectKey}/versions`);
         return {
           content: [{ type: 'text', text: JSON.stringify(versions, null, 2) }],
         };
@@ -1151,7 +1151,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (labels && labels.length > 0) fields.labels = labels;
         if (parentKey) fields.parent = { key: parentKey };
 
-        const issue = await callJiraApi('/rest/api/3/issue', 'POST', { fields });
+        const issue = await callJiraApi('/rest/api/2/issue', 'POST', { fields });
         return {
           content: [{ type: 'text', text: JSON.stringify(issue, null, 2) }],
         };
@@ -1184,7 +1184,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (priority) fields.priority = { name: priority };
         if (labels) fields.labels = labels;
 
-        await callJiraApi(`/rest/api/3/issue/${issueKey}`, 'PUT', { fields });
+        await callJiraApi(`/rest/api/2/issue/${issueKey}`, 'PUT', { fields });
         return {
           content: [{
             type: 'text',
@@ -1198,7 +1198,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           issueKey: string;
           deleteSubtasks?: boolean;
         };
-        const endpoint = `/rest/api/3/issue/${issueKey}?deleteSubtasks=${deleteSubtasks}`;
+        const endpoint = `/rest/api/2/issue/${issueKey}?deleteSubtasks=${deleteSubtasks}`;
         await callJiraApi(endpoint, 'DELETE');
         return {
           content: [{
@@ -1234,7 +1234,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return { fields };
         });
 
-        const result = await callJiraApi('/rest/api/3/issue/bulk', 'POST', { issueUpdates });
+        const result = await callJiraApi('/rest/api/2/issue/bulk', 'POST', { issueUpdates });
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
@@ -1242,7 +1242,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_add_comment': {
         const { issueKey, comment } = args as { issueKey: string; comment: string };
-        const result = await callJiraApi(`/rest/api/3/issue/${issueKey}/comment`, 'POST', {
+        const result = await callJiraApi(`/rest/api/2/issue/${issueKey}/comment`, 'POST', {
           body: {
             type: 'doc',
             version: 1,
@@ -1260,7 +1260,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'jira_transition_issue': {
         const { issueKey, transition } = args as { issueKey: string; transition: string };
         
-        const transitions = await callJiraApi(`/rest/api/3/issue/${issueKey}/transitions`);
+        const transitions = await callJiraApi(`/rest/api/2/issue/${issueKey}/transitions`);
         const targetTransition = (transitions.transitions || []).find(
           (t: any) => t.name === transition || t.id === transition
         );
@@ -1271,7 +1271,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }`);
         }
 
-        await callJiraApi(`/rest/api/3/issue/${issueKey}/transitions`, 'POST', {
+        await callJiraApi(`/rest/api/2/issue/${issueKey}/transitions`, 'POST', {
           transition: { id: targetTransition.id },
         });
 
@@ -1298,7 +1298,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (comment) body.comment = comment;
         if (started) body.started = started;
 
-        const result = await callJiraApi(`/rest/api/3/issue/${issueKey}/worklog`, 'POST', body);
+        const result = await callJiraApi(`/rest/api/2/issue/${issueKey}/worklog`, 'POST', body);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
@@ -1308,14 +1308,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { issueKey, epicKey } = args as { issueKey: string; epicKey: string };
         
         // Get epic link field ID
-        const fields = await callJiraApi('/rest/api/3/field');
+        const fields = await callJiraApi('/rest/api/2/field');
         const epicLinkField = fields.find((f: any) => f.name === 'Epic Link' || f.id === 'customfield_10014');
         
         if (!epicLinkField) {
           throw new Error('Epic Link field not found');
         }
 
-        await callJiraApi(`/rest/api/3/issue/${issueKey}`, 'PUT', {
+        await callJiraApi(`/rest/api/2/issue/${issueKey}`, 'PUT', {
           fields: {
             [epicLinkField.id]: epicKey,
           },
@@ -1402,7 +1402,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           };
         }
 
-        await callJiraApi('/rest/api/3/issueLink', 'POST', body);
+        await callJiraApi('/rest/api/2/issueLink', 'POST', body);
         return {
           content: [{
             type: 'text',
@@ -1413,7 +1413,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_remove_issue_link': {
         const { linkId } = args as { linkId: string };
-        await callJiraApi(`/rest/api/3/issueLink/${linkId}`, 'DELETE');
+        await callJiraApi(`/rest/api/2/issueLink/${linkId}`, 'DELETE');
         return {
           content: [{
             type: 'text',
@@ -1424,7 +1424,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'jira_assign_issue': {
         const { issueKey, accountId } = args as { issueKey: string; accountId: string };
-        await callJiraApi(`/rest/api/3/issue/${issueKey}/assignee`, 'PUT', { accountId });
+        await callJiraApi(`/rest/api/2/issue/${issueKey}/assignee`, 'PUT', { accountId });
         return {
           content: [{
             type: 'text',
@@ -1450,7 +1450,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (description) body.description = description;
         if (releaseDate) body.releaseDate = releaseDate;
 
-        const version = await callJiraApi('/rest/api/3/version', 'POST', body);
+        const version = await callJiraApi('/rest/api/2/version', 'POST', body);
         return {
           content: [{ type: 'text', text: JSON.stringify(version, null, 2) }],
         };
@@ -1469,7 +1469,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               if (version.description) body.description = version.description;
               if (version.releaseDate) body.releaseDate = version.releaseDate;
 
-              const result = await callJiraApi('/rest/api/3/version', 'POST', body);
+              const result = await callJiraApi('/rest/api/2/version', 'POST', body);
               return { success: true, version: result };
             } catch (error) {
               return { success: false, error: (error as Error).message, versionName: version.name };
@@ -1516,7 +1516,7 @@ async function main() {
   await server.connect(transport);
   
   console.error('='.repeat(60));
-  console.error('Jira MCP Server v2.3.0');
+  console.error('Jira MCP Server v2.4.0');
   console.error('='.repeat(60));
   console.error(`JIRA_URL: ${JIRA_URL}`);
   console.error('Status: Server started successfully');
