@@ -52,25 +52,85 @@ async function callJiraApi(
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(url, options);
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Jira API error (${response.status}): ${errorText}`);
-  }
+  try {
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage += ` - ${errorText.substring(0, 200)}`;
+        }
+      } catch {
+        // Ignore error text parsing errors
+      }
+      
+      throw new Error(errorMessage);
+    }
 
-  const contentType = response.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    return await response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+    
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED')) {
+        throw new Error(`Cannot connect to Jira at ${JIRA_URL}. Please check your JIRA_URL.`);
+      }
+      if (error.message.includes('timeout')) {
+        throw new Error(`Request to Jira timed out. The server might be slow or unreachable.`);
+      }
+      throw error;
+    }
+    throw new Error('Unknown error occurred while calling Jira API');
   }
-  
-  return { success: true };
+}
+
+/**
+ * Validate Jira connection and credentials
+ */
+async function validateJiraConnection(): Promise<{ valid: boolean; error?: string; user?: string }> {
+  try {
+    console.error('🔍 Validating Jira connection...');
+    
+    // Test connection by getting current user info
+    const user = await callJiraApi('/rest/api/2/myself');
+    
+    console.error(`✅ Connected to Jira as: ${user.displayName || user.name}`);
+    return { 
+      valid: true, 
+      user: user.displayName || user.name 
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Jira connection failed: ${errorMessage}`);
+    
+    let friendlyError = 'Failed to connect to Jira. ';
+    
+    if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+      friendlyError += 'Authentication failed. Please check your JIRA_ACCESS_TOKEN is valid and has not expired.';
+    } else if (errorMessage.includes('Cannot connect')) {
+      friendlyError += 'Cannot reach Jira server. Please check your JIRA_URL is correct.';
+    } else if (errorMessage.includes('timeout')) {
+      friendlyError += 'Connection timed out. The server might be slow or unreachable.';
+    } else if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+      friendlyError += 'Access denied. Your token does not have sufficient permissions.';
+    } else {
+      friendlyError += errorMessage;
+    }
+    
+    return { valid: false, error: friendlyError };
+  }
 }
 
 const server = new Server(
   {
     name: 'jira-mcp-server',
-    version: '2.0.0',
+    version: '2.1.0',
   },
   {
     capabilities: {
@@ -79,8 +139,33 @@ const server = new Server(
   }
 );
 
+// Connection validation state
+let connectionValidated = false;
+let connectionError: string | undefined;
+
 // List available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
+  // Validate connection on first request
+  if (!connectionValidated) {
+    const validation = await validateJiraConnection();
+    connectionValidated = true;
+    
+    if (!validation.valid) {
+      connectionError = validation.error;
+      // Return empty tools list if connection fails
+      return {
+        tools: [],
+      };
+    }
+  }
+  
+  // If there was a connection error, return empty list
+  if (connectionError) {
+    return {
+      tools: [],
+    };
+  }
+  
   return {
     tools: [
       // ===== READ OPERATIONS =====
@@ -782,6 +867,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
+    // Check if connection is valid
+    if (connectionError) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            error: 'Jira connection not available',
+            details: connectionError,
+            action: 'Please check your JIRA_URL and JIRA_ACCESS_TOKEN configuration'
+          }, null, 2),
+        }],
+        isError: true,
+      };
+    }
+    
     const { name, arguments: args } = request.params;
 
     switch (name) {
@@ -1392,8 +1492,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    console.error(`Error executing tool ${request.params.name}:`, errorMessage);
+    
     return {
-      content: [{ type: 'text', text: JSON.stringify({ error: errorMessage }, null, 2) }],
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          error: 'Failed to execute Jira operation',
+          tool: request.params.name,
+          details: errorMessage,
+          suggestion: errorMessage.includes('401') || errorMessage.includes('Unauthorized')
+            ? 'Your access token may have expired. Please generate a new one.'
+            : errorMessage.includes('403') || errorMessage.includes('Forbidden')
+            ? 'You do not have permission to perform this operation.'
+            : errorMessage.includes('404')
+            ? 'The requested resource was not found. Check if the issue/project key is correct.'
+            : 'Please check the error details and try again.'
+        }, null, 2),
+      }],
       isError: true,
     };
   }
@@ -1402,7 +1519,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Jira MCP Server v2.0.0 - Running on stdio');
+  
+  console.error('='.repeat(60));
+  console.error('Jira MCP Server v2.1.0');
+  console.error('='.repeat(60));
+  console.error(`JIRA_URL: ${JIRA_URL}`);
+  console.error('Status: Server started successfully');
+  console.error('Note: Connection will be validated on first tool request');
+  console.error('='.repeat(60));
 }
 
 main().catch((error) => {

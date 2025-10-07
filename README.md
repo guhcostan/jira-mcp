@@ -284,28 +284,57 @@ node build/index.js
 - ✅ 32 complete tools (17 read + 15 write)
 - ✅ JQL support for advanced searches
 - ✅ Batch operations for better performance
+- ✅ **Connection validation** on startup - tools only appear if Jira is accessible
+- ✅ **Improved error handling** with helpful error messages and suggestions
 - ⚠️ Requires appropriate Jira permissions for each operation
 - ⚠️ Rate limiting is applied by Jira
 
 ## 🐛 Troubleshooting
 
+### No tools appearing in Claude/Cursor
+
+**The server validates the connection on startup. If no tools appear, check the logs:**
+
+1. **Connection validation failed** - The server couldn't connect to Jira
+   - Check your `JIRA_URL` is correct
+   - Verify your `JIRA_ACCESS_TOKEN` is valid
+   - Ensure Jira is accessible from your network
+
+2. **Look at the server logs** for specific error messages:
+   - In Claude Desktop: Check the application logs
+   - The server will show: `✅ Connected to Jira as: [Your Name]` or `❌ Jira connection failed: [error]`
+
 ### Error 401 - Unauthorized
 
 - Check if the access token is correct
 - Confirm you're using Bearer authentication with access token (not Basic Auth)
-- Verify the token hasn't expired
+- **Verify the token hasn't expired** - tokens can expire, generate a new one if needed
 - Ensure the token has the necessary permissions
 
-### Server doesn't appear in Claude/Cursor
+### Error 403 - Forbidden
+
+- Your token doesn't have permission for this operation
+- Check your Jira user permissions
+- Some operations require admin privileges
+
+### Error 404 - Not Found
+
+- The issue/project/resource doesn't exist
+- Check the issue key or project key is correct
+- Verify you have access to view the resource
+
+### Connection timeout or network errors
+
+- Check your network connection
+- Verify Jira server is accessible
+- Check if there's a firewall blocking the connection
+
+### Server doesn't appear in Claude/Cursor at all
 
 1. Check if the path in config is correct
 2. Restart the application completely
-3. Check Claude/Cursor logs
-
-### Permission errors
-
-- Confirm your account has permissions for the operation
-- Check project permissions
+3. Check Claude/Cursor logs for startup errors
+4. Verify Node.js is installed and accessible
 
 ## 📄 License
 
