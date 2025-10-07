@@ -1,6 +1,6 @@
 {
   "name": "@guhcostan/jira-mcp",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Complete MCP server for Jira integration with 32 tools - allows AI assistants to interact with Jira via Model Context Protocol",
   "type": "module",
   "main": "./build/index.js",
@@ -40,6 +40,7 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.12.2",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

@@ -9,6 +9,8 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
+import axios from 'axios';
+import https from 'https';
 
 // Load environment variables
 dotenv.config();
@@ -43,63 +45,43 @@ async function callJiraApi(
     'Content-Type': 'application/json',
   };
 
-  const options: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body && (method === 'POST' || method === 'PUT')) {
-    options.body = JSON.stringify(body);
-  }
-
   try {
-    const response = await fetch(url, options);
+    const response = await axios({
+      url,
+      method,
+      headers,
+      data: body,
+      timeout: 30000,
+      maxRedirects: 0, // Don't follow redirects
+      validateStatus: (status) => status >= 200 && status < 400, // Accept 2xx and 3xx
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false, // Allow self-signed certificates
+      }),
+    });
     
-    if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      let errorMessage = `HTTP ${error.response.status}: ${error.response.statusText || 'Error'}`;
       
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage += ` - ${errorText.substring(0, 200)}`;
-        }
-      } catch {
-        // Ignore error text parsing errors
+      if (error.response.data) {
+        const errorData = typeof error.response.data === 'string' 
+          ? error.response.data.substring(0, 200)
+          : JSON.stringify(error.response.data).substring(0, 200);
+        errorMessage += ` - ${errorData}`;
       }
       
       throw new Error(errorMessage);
+    } else if (error.request) {
+      // The request was made but no response was received
+      throw new Error(`Cannot connect to Jira at ${JIRA_URL}. Please check your JIRA_URL.`);
+    } else if (error.code === 'ECONNABORTED') {
+      throw new Error(`Request to Jira timed out. The server might be slow or unreachable.`);
+    } else {
+      throw new Error(error.message || 'Unknown error occurred while calling Jira API');
     }
-
-    const contentType = response.headers.get('content-type');
-    
-    // Try to parse as JSON if there's content or if content-type suggests JSON
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
-    }
-    
-    // For responses without explicit JSON content-type, try to parse anyway if there's a body
-    const text = await response.text();
-    if (text && text.trim().length > 0) {
-      try {
-        return JSON.parse(text);
-      } catch {
-        // If not JSON, return the text
-        return { success: true, data: text };
-      }
-    }
-    
-    return { success: true };
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED')) {
-        throw new Error(`Cannot connect to Jira at ${JIRA_URL}. Please check your JIRA_URL.`);
-      }
-      if (error.message.includes('timeout')) {
-        throw new Error(`Request to Jira timed out. The server might be slow or unreachable.`);
-      }
-      throw error;
-    }
-    throw new Error('Unknown error occurred while calling Jira API');
   }
 }
 
@@ -1534,7 +1516,7 @@ async function main() {
   await server.connect(transport);
   
   console.error('='.repeat(60));
-  console.error('Jira MCP Server v2.1.0');
+  console.error('Jira MCP Server v2.3.0');
   console.error('='.repeat(60));
   console.error(`JIRA_URL: ${JIRA_URL}`);
   console.error('Status: Server started successfully');
