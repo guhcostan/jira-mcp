@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./build/index.js",
   "bin": {
-    "jira-mcp": "./build/index.js"
+    "jira-mcp": "build/index.js"
   },
   "files": [
     "build/**/*",
@@ -50,4 +50,3 @@
     "node": ">=18"
   }
 }
-
