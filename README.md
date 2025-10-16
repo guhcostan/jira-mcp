@@ -1,4 +1,4 @@
-# Jira MCP Server v2.0.0
+# Jira MCP Server v2.5.0
 
 A complete MCP (Model Context Protocol) server for Jira integration, allowing AI assistants to interact with your Jira instance.
 
@@ -82,9 +82,9 @@ Close and reopen the application completely to load the MCP server.
 
 ## 📚 Features
 
-This MCP server provides **32 tools** to interact with Jira:
+This MCP server provides **36 tools** to interact with Jira:
 
-### 📖 Read Operations (17 tools)
+### 📖 Read Operations (21 tools)
 
 #### Issues
 - `jira_get_issue` - Get issue details
@@ -97,6 +97,12 @@ This MCP server provides **32 tools** to interact with Jira:
 - `jira_get_all_projects` - List all projects
 - `jira_get_project` - Get project details
 - `jira_get_project_versions` - Get project versions
+- `jira_search_projects` - Search projects by pattern
+
+#### Metrics & Analytics
+- `jira_get_issue_types` - List all issue types
+- `jira_get_metrics_summary` - Get consolidated metrics summary
+- `jira_get_metrics_by_project` - Get detailed metrics by project
 
 #### Other
 - `jira_get_worklog` - Get issue worklogs
@@ -159,6 +165,19 @@ This MCP server provides **32 tools** to interact with Jira:
 "Search issues with JQL: project = DEV AND status = 'In Progress' AND assignee = currentUser()"
 ```
 
+### Generate Metrics Reports (New in v2.5.0!)
+
+```javascript
+// Search projects
+"Find all projects that contain 'mobile' in the name"
+
+// Get metrics summary
+"Give me a summary of Tasks, Bugs, and Tech Debts for projects PROJ1, PROJ2, and PROJ3 created since 2024-10-01"
+
+// Get detailed metrics by project
+"Show me detailed metrics for each eLoyalty project, including Tasks, Bugs, and Tech Debts"
+```
+
 ## 🔍 Tool Reference
 
 ### jira_get_issue
@@ -207,6 +226,32 @@ Create a new sprint.
 - `startDate` (optional): Start date (ISO 8601)
 - `endDate` (optional): End date (ISO 8601)
 - `goal` (optional): Sprint goal
+
+### jira_get_metrics_summary (New in v2.5.0)
+Get consolidated metrics summary across multiple projects.
+
+**Parameters:**
+- `projectKeys` (required): Array of project keys (e.g., ["PROJ1", "PROJ2"])
+- `issueTypes` (required): Array of issue type names (e.g., ["Task", "Bug"])
+- `createdSince` (optional): Filter by creation date (YYYY-MM-DD format)
+
+**Example:**
+```javascript
+"Get metrics summary for projects ABC, DEF, and GHI showing Tasks and Bugs created since 2024-01-01"
+```
+
+### jira_get_metrics_by_project (New in v2.5.0)
+Get detailed metrics breakdown by individual project.
+
+**Parameters:**
+- `projectKeys` (required): Array of project keys
+- `issueTypes` (required): Array of issue type names
+- `createdSince` (optional): Filter by creation date (YYYY-MM-DD format)
+
+**Example:**
+```javascript
+"Show me detailed metrics for each project in the eLoyalty team"
+```
 
 ## 🔐 Authentication
 
@@ -281,9 +326,10 @@ node build/index.js
 ## 📝 Important Notes
 
 - ✅ Supports Jira Data Center/Server with Access Token
-- ✅ 32 complete tools (17 read + 15 write)
+- ✅ 36 complete tools (21 read + 15 write)
 - ✅ JQL support for advanced searches
 - ✅ Batch operations for better performance
+- ✅ **Metrics & Analytics tools** for generating reports (v2.5.0)
 - ✅ **Connection validation** on startup - tools only appear if Jira is accessible
 - ✅ **Improved error handling** with helpful error messages and suggestions
 - ⚠️ Requires appropriate Jira permissions for each operation

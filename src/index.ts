@@ -412,6 +412,80 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
+        name: 'jira_get_issue_types',
+        description: 'Get all issue types available in this Jira instance',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'jira_search_projects',
+        description: 'Search for projects by name or key pattern',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            pattern: {
+              type: 'string',
+              description: 'Search pattern to match in project name or key (case-insensitive)',
+            },
+            expand: {
+              type: 'string',
+              description: 'Comma-separated list of fields to expand (optional)',
+            },
+          },
+          required: ['pattern'],
+        },
+      },
+      {
+        name: 'jira_get_metrics_summary',
+        description: 'Get a summary of issues by type for specified projects with optional date filter',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectKeys: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Array of project keys to analyze (e.g., ["PROJ1", "PROJ2"])',
+            },
+            issueTypes: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Array of issue type names to count (e.g., ["Tarea", "Falla", "Error"])',
+            },
+            createdSince: {
+              type: 'string',
+              description: 'Optional date filter in YYYY-MM-DD format (e.g., "2024-10-01")',
+            },
+          },
+          required: ['projectKeys', 'issueTypes'],
+        },
+      },
+      {
+        name: 'jira_get_metrics_by_project',
+        description: 'Get detailed metrics breakdown by project, showing counts for each issue type per project',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectKeys: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Array of project keys to analyze (e.g., ["PROJ1", "PROJ2"])',
+            },
+            issueTypes: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Array of issue type names to count (e.g., ["Tarea", "Falla", "Error"])',
+            },
+            createdSince: {
+              type: 'string',
+              description: 'Optional date filter in YYYY-MM-DD format (e.g., "2024-10-01")',
+            },
+          },
+          required: ['projectKeys', 'issueTypes'],
+        },
+      },
+      {
         name: 'jira_batch_get_changelogs',
         description: 'Get changelogs for multiple issues in batch',
         inputSchema: {
@@ -1056,6 +1130,156 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const linkTypes = await callJiraApi('/rest/api/2/issueLinkType');
         return {
           content: [{ type: 'text', text: JSON.stringify(linkTypes, null, 2) }],
+        };
+      }
+
+      case 'jira_get_issue_types': {
+        const issueTypes = await callJiraApi('/rest/api/2/issuetype');
+        return {
+          content: [{ type: 'text', text: JSON.stringify(issueTypes, null, 2) }],
+        };
+      }
+
+      case 'jira_search_projects': {
+        const { pattern, expand } = args as { pattern: string; expand?: string };
+        let endpoint = '/rest/api/2/project';
+        if (expand) endpoint += `?expand=${expand}`;
+        
+        const allProjects = await callJiraApi(endpoint);
+        
+        // Filter projects by pattern (case-insensitive)
+        const lowerPattern = pattern.toLowerCase();
+        const filteredProjects = allProjects.filter((project: any) => 
+          project.name.toLowerCase().includes(lowerPattern) || 
+          project.key.toLowerCase().includes(lowerPattern)
+        );
+        
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              total: filteredProjects.length,
+              pattern: pattern,
+              projects: filteredProjects
+            }, null, 2)
+          }],
+        };
+      }
+
+      case 'jira_get_metrics_summary': {
+        const { projectKeys, issueTypes, createdSince } = args as {
+          projectKeys: string[];
+          issueTypes: string[];
+          createdSince?: string;
+        };
+
+        // Build JQL for each issue type
+        const metrics: Record<string, number> = {};
+        let totalIssues = 0;
+
+        for (const issueType of issueTypes) {
+          let jql = `project in (${projectKeys.join(',')}) AND issuetype = "${issueType}"`;
+          if (createdSince) {
+            jql += ` AND created >= ${createdSince}`;
+          }
+
+          const params = new URLSearchParams({
+            jql,
+            maxResults: '0',
+            fields: 'none'
+          });
+
+          const result = await callJiraApi(`/rest/api/2/search?${params.toString()}`);
+          metrics[issueType] = result.total || 0;
+          totalIssues += result.total || 0;
+        }
+
+        // Calculate percentages
+        const metricsWithPercentages = Object.entries(metrics).map(([type, count]) => ({
+          issueType: type,
+          count,
+          percentage: totalIssues > 0 ? ((count / totalIssues) * 100).toFixed(2) : '0.00'
+        }));
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              projectKeys,
+              createdSince: createdSince || 'all time',
+              totalIssues,
+              metrics: metricsWithPercentages,
+              rawMetrics: metrics
+            }, null, 2)
+          }],
+        };
+      }
+
+      case 'jira_get_metrics_by_project': {
+        const { projectKeys, issueTypes, createdSince } = args as {
+          projectKeys: string[];
+          issueTypes: string[];
+          createdSince?: string;
+        };
+
+        // Get metrics for each project
+        const projectMetrics: any[] = [];
+
+        for (const projectKey of projectKeys) {
+          const projectData: any = {
+            projectKey,
+            issueTypes: {},
+            total: 0
+          };
+
+          // Count each issue type
+          for (const issueType of issueTypes) {
+            let jql = `project = ${projectKey} AND issuetype = "${issueType}"`;
+            if (createdSince) {
+              jql += ` AND created >= ${createdSince}`;
+            }
+
+            const params = new URLSearchParams({
+              jql,
+              maxResults: '0',
+              fields: 'none'
+            });
+
+            try {
+              const result = await callJiraApi(`/rest/api/2/search?${params.toString()}`);
+              projectData.issueTypes[issueType] = result.total || 0;
+              projectData.total += result.total || 0;
+            } catch (error) {
+              projectData.issueTypes[issueType] = 0;
+            }
+          }
+
+          projectMetrics.push(projectData);
+        }
+
+        // Calculate totals across all projects
+        const totalsByType: Record<string, number> = {};
+        let grandTotal = 0;
+
+        for (const issueType of issueTypes) {
+          totalsByType[issueType] = projectMetrics.reduce(
+            (sum, project) => sum + (project.issueTypes[issueType] || 0),
+            0
+          );
+          grandTotal += totalsByType[issueType];
+        }
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              createdSince: createdSince || 'all time',
+              projectCount: projectKeys.length,
+              grandTotal,
+              totalsByType,
+              projectMetrics: projectMetrics.sort((a, b) => b.total - a.total)
+            }, null, 2)
+          }],
         };
       }
 
