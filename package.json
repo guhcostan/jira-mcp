@@ -1,0 +1,53 @@
+{
+  "name": "@guhcostan/jira-mcp",
+  "version": "2.4.0",
+  "description": "Complete MCP server for Jira integration with 32 tools - allows AI assistants to interact with Jira via Model Context Protocol",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "jira-mcp": "build/index.js"
+  },
+  "files": [
+    "build/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x build/index.js",
+    "watch": "tsc --watch",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guhcostan/jira-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/guhcostan/jira-mcp/issues"
+  },
+  "homepage": "https://github.com/guhcostan/jira-mcp#readme",
+  "keywords": [
+    "mcp",
+    "jira",
+    "model-context-protocol",
+    "ai",
+    "assistant",
+    "automation",
+    "atlassian",
+    "jira-api"
+  ],
+  "author": "Gustavo Neves",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.12.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
