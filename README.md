@@ -1,5 +1,8 @@
 # Jira MCP Server v2.5.0
 
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-ea4aaa?style=flat&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/guhcostan)
+
+
 A complete MCP (Model Context Protocol) server for Jira integration, allowing AI assistants to interact with your Jira instance.
 
 ## 🚀 Installation
